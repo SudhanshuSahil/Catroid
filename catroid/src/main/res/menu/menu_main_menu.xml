@@ -43,24 +43,24 @@
         android:id="@+id/menu_privacy_policy"
         android:title="@string/main_menu_privacy_policy"
         app:showAsAction="never" />
-    <item
-        android:id="@+id/menu_about"
-        android:title="@string/main_menu_about"
-        app:showAsAction="never" />
-    <item
-        android:id="@+id/menu_scratch_converter"
-        android:title="@string/main_menu_scratch_converter"
-        app:showAsAction="never" />
-    <item
-        android:id="@+id/settings"
-        android:title="@string/settings"
-        app:showAsAction="never" />
-    <item
-        android:id="@+id/menu_login"
-        android:title="@string/main_menu_login"
-        app:showAsAction="never" />
-    <item
-        android:id="@+id/menu_logout"
-        android:title="@string/main_menu_logout"
-        app:showAsAction="never" />
+<!--    <item-->
+<!--        android:id="@+id/menu_about"-->
+<!--        android:title="@string/main_menu_about"-->
+<!--        app:showAsAction="never" />-->
+<!--    <item-->
+<!--        android:id="@+id/menu_scratch_converter"-->
+<!--        android:title="@string/main_menu_scratch_converter"-->
+<!--        app:showAsAction="never" />-->
+<!--    <item-->
+<!--        android:id="@+id/settings"-->
+<!--        android:title="@string/settings"-->
+<!--        app:showAsAction="never" />-->
+<!--    <item-->
+<!--        android:id="@+id/menu_login"-->
+<!--        android:title="@string/main_menu_login"-->
+<!--        app:showAsAction="never" />-->
+<!--    <item-->
+<!--        android:id="@+id/menu_logout"-->
+<!--        android:title="@string/main_menu_logout"-->
+<!--        app:showAsAction="never" />-->
 </menu>

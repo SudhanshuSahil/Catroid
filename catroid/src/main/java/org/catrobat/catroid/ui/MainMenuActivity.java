@@ -36,6 +36,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.google.android.material.navigation.NavigationView;
 
 import org.catrobat.catroid.BuildConfig;
 import org.catrobat.catroid.ProjectManager;
@@ -63,17 +66,22 @@ import java.io.InputStream;
 
 import javax.inject.Inject;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AlertDialog;
+import androidx.drawerlayout.widget.DrawerLayout;
 import dagger.android.AndroidInjection;
 
 import static org.catrobat.catroid.common.FlavoredConstants.DEFAULT_ROOT_DIRECTORY;
 import static org.catrobat.catroid.common.SharedPreferenceKeys.AGREED_TO_PRIVACY_POLICY_VERSION;
 
 public class MainMenuActivity extends BaseCastActivity implements
-		ProjectLoadTask.ProjectLoadListener {
+		ProjectLoadTask.ProjectLoadListener, NavigationView.OnNavigationItemSelectedListener {
 
 	@Inject
 	ProjectManager projectManager;
+	private ActionBarDrawerToggle mToggle;
+	private NavigationView navigationView;
 
 	public static final String TAG = MainMenuActivity.class.getSimpleName();
 
@@ -81,6 +89,7 @@ public class MainMenuActivity extends BaseCastActivity implements
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		AndroidInjection.inject(this);
+
 
 		SettingsFragment.setToChosenLanguage(this);
 
@@ -135,6 +144,19 @@ public class MainMenuActivity extends BaseCastActivity implements
 		getSupportActionBar().setIcon(R.drawable.pc_toolbar_icon);
 		getSupportActionBar().setTitle(R.string.app_name);
 
+		DrawerLayout mDrawerLayout = findViewById(R.id.main_menu_drawer_layout);
+		mToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
+				R.string.drawer_open, R.string.drawer_close);
+		mDrawerLayout.addDrawerListener(mToggle);
+		mToggle.syncState();
+		navigationView = findViewById(R.id.nav_view);
+		mDrawerLayout.requestLayout();
+		navigationView.bringToFront();
+		navigationView.setNavigationItemSelectedListener(this);
+		onCreateNavigationDrawer(navigationView.getMenu());
+		onPrepareNavigationDrawer(navigationView.getMenu());
+		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
 		setShowProgressBar(true);
 
 		if (SettingsFragment.isCastSharedPreferenceEnabled(this)) {
@@ -185,7 +207,20 @@ public class MainMenuActivity extends BaseCastActivity implements
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.menu_main_menu, menu);
+		String scratchConverter = getString(R.string.main_menu_scratch_converter);
+		SpannableString scratchConverterBeta = new SpannableString(scratchConverter
+				+ " "
+				+ getString(R.string.beta));
+		scratchConverterBeta.setSpan(
+				new ForegroundColorSpan(getResources().getColor(R.color.beta_label_color)),
+				scratchConverter.length(), scratchConverterBeta.length(),
+				Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+//		menu.findItem(R.id.menu_scratch_converter).setTitle(scratchConverterBeta);
+		return true;
+	}
 
+	public void onCreateNavigationDrawer(Menu menu) {
+		getMenuInflater().inflate(R.menu.menu_main_navigationdrawer, menu);
 		String scratchConverter = getString(R.string.main_menu_scratch_converter);
 		SpannableString scratchConverterBeta = new SpannableString(scratchConverter
 				+ " "
@@ -195,21 +230,47 @@ public class MainMenuActivity extends BaseCastActivity implements
 				scratchConverter.length(), scratchConverterBeta.length(),
 				Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 		menu.findItem(R.id.menu_scratch_converter).setTitle(scratchConverterBeta);
-		return true;
 	}
+
 
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
-		menu.findItem(R.id.menu_login).setVisible(!Utils.isUserLoggedIn(this));
-		menu.findItem(R.id.menu_logout).setVisible(Utils.isUserLoggedIn(this));
+//		menu.findItem(R.id.menu_login).setVisible(!Utils.isUserLoggedIn(this));
+//		menu.findItem(R.id.menu_logout).setVisible(Utils.isUserLoggedIn(this));
 		if (!BuildConfig.FEATURE_SCRATCH_CONVERTER_ENABLED) {
 			menu.removeItem(R.id.menu_scratch_converter);
 		}
 		return true;
 	}
 
+	public void onPrepareNavigationDrawer(Menu menu){
+		menu.findItem(R.id.menu_login).setVisible(!Utils.isUserLoggedIn(this));
+		menu.findItem(R.id.menu_logout).setVisible(Utils.isUserLoggedIn(this));
+		if (!BuildConfig.FEATURE_SCRATCH_CONVERTER_ENABLED) {
+			menu.removeItem(R.id.menu_scratch_converter);
+		}
+		View nav_header = navigationView.getHeaderView(0);
+		TextView nav_username = nav_header.findViewById(R.id.nav_drawer_username);
+		TextView nav_email = nav_header.findViewById(R.id.nav_drawer_user_email);
+
+		if(!Utils.isUserLoggedIn(getBaseContext())){
+			nav_username.setVisibility(View.GONE);
+			nav_email.setVisibility(View.GONE);
+		}
+		else {
+			nav_username.setVisibility(View.GONE);
+			nav_username.setText(Constants.GOOGLE_USERNAME);
+			nav_email.setVisibility(View.GONE);
+			nav_email.setText(Constants.GOOGLE_EMAIL);
+		}
+	}
+
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
+		if(mToggle.onOptionsItemSelected(item)){
+			return true;
+		}
+
 		switch (item.getItemId()) {
 			case R.id.menu_rate_app:
 				if (Utils.checkIsNetworkAvailableAndShowErrorMessage(this)) {
@@ -248,7 +309,7 @@ public class MainMenuActivity extends BaseCastActivity implements
 			default:
 				return super.onOptionsItemSelected(item);
 		}
-		return true;
+		return super.onOptionsItemSelected(item);
 	}
 
 	private void prepareStandaloneProject() {
@@ -283,5 +344,50 @@ public class MainMenuActivity extends BaseCastActivity implements
 		} else {
 			super.onActivityResult(requestCode, resultCode, data);
 		}
+	}
+
+	@Override
+	public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+		switch (menuItem.getItemId()) {
+			case R.id.menu_rate_app:
+				if (Utils.checkIsNetworkAvailableAndShowErrorMessage(this)) {
+					try {
+						startActivity(new Intent(Intent.ACTION_VIEW,
+								Uri.parse("market://details?id=" + getPackageName())));
+					} catch (ActivityNotFoundException e) {
+						ToastUtil.showError(this, R.string.main_menu_play_store_not_installed);
+					}
+				}
+				break;
+			case R.id.menu_terms_of_use:
+				new TermsOfUseDialogFragment().show(getSupportFragmentManager(), TermsOfUseDialogFragment.TAG);
+				break;
+			case R.id.menu_privacy_policy:
+				new PrivacyPolicyDialogFragment().show(getSupportFragmentManager(), PrivacyPolicyDialogFragment.TAG);
+				break;
+			case R.id.menu_about:
+				new AboutDialogFragment().show(getSupportFragmentManager(), AboutDialogFragment.TAG);
+				break;
+			case R.id.menu_scratch_converter:
+				if (Utils.checkIsNetworkAvailableAndShowErrorMessage(this)) {
+					startActivity(new Intent(this, ScratchConverterActivity.class));
+				}
+				break;
+			case R.id.settings:
+				startActivity(new Intent(this, SettingsActivity.class));
+				break;
+			case R.id.menu_login:
+				startActivity(new Intent(this, SignInActivity.class));
+				break;
+			case R.id.menu_logout:
+				Utils.logoutUser(this);
+				ToastUtil.showSuccess(this, R.string.logout_successful);
+				break;
+			default:
+				return false;
+		}
+		onPrepareNavigationDrawer(navigationView.getMenu());
+
+		return false;
 	}
 }

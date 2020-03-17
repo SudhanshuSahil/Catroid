@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
   ~ Catroid: An on-device visual programming system for Android devices
-  ~ Copyright (C) 2010-2018 The Catrobat Team
+  ~ Copyright (C) 2010-2020 The Catrobat Team
   ~ (<http://developer.catrobat.org/credits>)
   ~
   ~ This program is free software: you can redistribute it and/or modify
@@ -21,32 +21,35 @@
   ~ You should have received a copy of the GNU Affero General Public License
   ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   -->
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical">
+    android:paddingTop="@dimen/dialog_content_area_padding_top">
 
-    <include layout="@layout/toolbar" />
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="140dp"
+        android:src="@drawable/catrobat_icon"
+        android:visibility="visible" />
 
-    <include layout="@layout/progress_bar" />
+    <TextView
+        android:id="@+id/nav_drawer_username"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/view_holder_padding"
+        android:paddingStart="@dimen/dialog_content_area_padding"
+        android:text="@string/username"
+        android:textStyle="bold" />
 
-    <androidx.drawerlayout.widget.DrawerLayout
-        android:id="@+id/main_menu_drawer_layout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+    <TextView
+        android:id="@+id/nav_drawer_user_email"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingStart="@dimen/dialog_content_area_padding"
+        android:text="@string/accountName" />
+    
 
-        <com.google.android.material.navigation.NavigationView
-            android:id="@+id/nav_view"
-            app:headerLayout="@layout/activity_main_menu_header"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_gravity="start" />
-        <FrameLayout
-            android:id="@+id/fragment_container"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
 
-    </androidx.drawerlayout.widget.DrawerLayout>
 
 </LinearLayout>
